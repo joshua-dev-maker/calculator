@@ -263,6 +263,28 @@ function createCalculatorButtons() {
 }
 createCalculatorButtons();
 // click event listener
+inputElement.addEventListener("click", (event) => {
+  const target_btns = event.target;
+  calculator_butns.forEach((button) => {
+    if (button.name == target_btns.id) calculator(button);
+  });
+});
+// calculator
+function calculator(button) {
+  if (button.type == "operator") {
+    data.operation.push(button.symbol);
+    data.formula.push(button.formula);
+  } else if (button.type == "number") {
+    data.operation.push(button.symbol);
+    data.formula.push(button.formula);
+  } else if (button.type == "trigo_function") {
+  } else if (button.type == "math_function") {
+  } else if (button.type == "key") {
+  } else if (button.type == "calculate") {
+  }
+  updateOutputOperation(data.operation.join(""));
+}
+//update output
 function gamma(n) {
   // accurate to about 15 decimal places
   //some magic constants
