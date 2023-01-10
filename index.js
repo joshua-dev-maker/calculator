@@ -262,6 +262,15 @@ function createCalculatorButtons() {
   });
 }
 createCalculatorButtons();
+//rad and deg
+let RADIAN = true;
+const rad_btn = document.getElementById("rad");
+const deg_btn = document.getElementById("deg");
+rad_btn.classList.add("active-angle");
+function angleToggler() {
+  rad_btn.classList.toggle("active-angle");
+  deg_btn.classList.toggle("active-angle");
+}
 // click event listener
 inputElement.addEventListener("click", (event) => {
   const target_btns = event.target;
@@ -278,13 +287,98 @@ function calculator(button) {
     data.operation.push(button.symbol);
     data.formula.push(button.formula);
   } else if (button.type == "trigo_function") {
+    data.operation.push(button.symbol + "(");
+    data.operation.push(button.formula);
   } else if (button.type == "math_function") {
+    let symbol, formula;
+    if (button.name == "factorial") {
+      symbol = "!";
+      formula = button.formula;
+      data.operation.push(symbol);
+      data.operation.push(formula);
+    } else if (button.name == "power") {
+      symbol = "^(";
+      formula = button.formula;
+      data.operation.push(symbol);
+      data.operation.push(formula);
+    } else if (button.name == "square") {
+      symbol = "^(";
+      formula = button.formula;
+      data.operation.push("2)");
+      data.operation.push("2)");
+    } else {
+      symbol = button.symbol + "(";
+      formula = button.formula + "(";
+      data.operation.push(symbol);
+      data.operation.push(formula);
+    }
   } else if (button.type == "key") {
+    if (button.name == "clear") {
+      data.operation = [];
+      data.formula = [];
+      updateOutputResult(0);
+    } else if (button.name == "delete") {
+      data.operation.pop();
+      data.formula.pop();
+    } else if (button.name == "Rad") {
+      RADIAN = true;
+      angleToggler();
+    } else if (button.name == "deg") {
+      RADIAN = false;
+      angleToggler();
+    }
   } else if (button.type == "calculate") {
+    formula_str = data.formula.join("");
+    let POWER_SEARCH_RESULT = search(data.formula, POWER);
+    let FACTORIAL_SEARCH_RESULT = search(data.formula, FACTORIAL);
+
+    let result;
+    try {
+      result = eval(formula_str);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        result = syntaxError;
+        updateOutputResult(result);
+      }
+    }
+    //save result for later use
+    ans = result;
+    data.operation = [result];
+    data.formula = [result];
+    updateOutputResult(result);
   }
   updateOutputOperation(data.operation.join(""));
 }
+//get powerbase
+const BASES = PowerBaseGetter(data.formula, POWER_SEARCH_RESULT);
+let power_base = [];
+
+// SEARCH AN ARRAY
+function search(array, keyword) {
+  let searchResult = [];
+  array.forEach((element, index) => {
+    if (element === keyword) searchResult.push(index);
+  });
+  return searchResult;
+}
 //update output
+function updateOutputOperation(operation) {
+  outputOperationElement.innerHTML = operation;
+}
+function updateOutputResult(result) {
+  outputResultElement.innerHTML = result;
+}
+//factorial function
+function factorial(numbers) {
+  if (numbers % 1 != 0) return gamma(number + 1);
+  if (numbers === 0 || numbers === 1) return 1;
+  let result = 1;
+  for (let i = 0; i <= numbers; i++) {
+    result *= i;
+    if (result === Infinity) return Infinity;
+  }
+  return result;
+}
 function gamma(n) {
   // accurate to about 15 decimal places
   //some magic constants
@@ -305,4 +399,18 @@ function gamma(n) {
     const t = n + g + 0.5;
     return Math.sqrt(2 * Math.PI) * Math.pow(t, n + 0.5) * Math.exp(-t) * x;
   }
+}
+//Trigo function
+function trigo(callback, angle) {
+  if (!RADIAN) {
+    angle = (angle * math.PI) / 180;
+  }
+  return callback(angle);
+}
+function inv_trigo(callback, value) {
+  let angle = callback(value);
+  if (!RADIAN) {
+    angle = (angle * 180) / math.PI;
+  }
+  return angle;
 }
